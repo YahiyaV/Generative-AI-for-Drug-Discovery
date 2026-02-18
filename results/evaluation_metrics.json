@@ -1,0 +1,14 @@
+{
+  "total_generated": 1000,
+  "valid": 31,
+  "validity": 0.031,
+  "unique": 31,
+  "uniqueness": 1.0,
+  "novel": 31,
+  "novelty": 1.0,
+  "structural_novelty": 0.9677,
+  "lipinski_pass": 31,
+  "lipinski_rate": 1.0,
+  "mean_qed": 0.69,
+  "median_qed": 0.7085
+}
