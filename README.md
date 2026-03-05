@@ -1,3 +1,13 @@
+---
+title: Generative AI for Drug Discovery
+emoji: 🧬
+colorFrom: indigo
+colorTo: blue
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # 🧬 Generative AI for Drug Discovery
 
 > **Design novel drug molecules with deep generative models and predict their properties using Graph Neural Networks.**
@@ -5,7 +15,7 @@
 ![Python](https://img.shields.io/badge/Python-3.9+-3776ab?style=flat-square&logo=python&logoColor=white)
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c?style=flat-square&logo=pytorch&logoColor=white)
 ![RDKit](https://img.shields.io/badge/RDKit-Chemistry-00bcd4?style=flat-square)
-![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-ff4b4b?style=flat-square&logo=streamlit)
+![Flask](https://img.shields.io/badge/Flask-Web_UI-000000?style=flat-square&logo=flask&logoColor=white)
 
 ---
 
@@ -17,7 +27,7 @@ This project builds an end-to-end AI pipeline for computational drug discovery:
 2. **SMILES VAE** — A character-level Variational Autoencoder that learns the chemical latent space and generates novel molecular structures
 3. **GNN Property Predictor** — A Graph Convolutional Network that predicts molecular properties (MolWt, LogP, TPSA, QED) from molecular graphs
 4. **Evaluation** — Measures validity, uniqueness, novelty, structural novelty, and drug-likeness (Lipinski Rule of 5)
-5. **Interactive Dashboard** — A Streamlit app to generate, evaluate, and explore molecules in real-time
+5. **Interactive Dashboard** — A Flask-powered web UI to generate, evaluate, and explore molecules in real-time
 
 ## 🏗️ Architecture
 
@@ -28,15 +38,18 @@ SMILES Dataset ──→ VAE (Encoder → z → Decoder) ──→ Novel Molecul
  from ZINC           sampling                 + 2D structures        TPSA, QED
 ```
 
+
 ## 📁 Project Structure
 
-```
-├── app.py                     # Streamlit dashboard
+```text
+├── server.py                  # Flask API server & entry point
 ├── requirements.txt           # Python dependencies
 ├── data/
 │   ├── download_data.py       # Data download & preprocessing
-│   └── processed/             # Cleaned CSV datasets
+│   └── processed/
+│       └── molecules.csv      # Cleaned molecular dataset
 ├── src/
+│   ├── __init__.py            # Package initializer
 │   ├── config.py              # Central hyperparameters
 │   ├── mol_utils.py           # SMILES ↔ Graph, fingerprints, tokenizer
 │   ├── vae_model.py           # SMILES VAE architecture
@@ -44,8 +57,24 @@ SMILES Dataset ──→ VAE (Encoder → z → Decoder) ──→ Novel Molecul
 │   ├── train_vae.py           # VAE training script
 │   ├── train_gnn.py           # GNN training script
 │   └── evaluate.py            # Generation & evaluation pipeline
-├── checkpoints/               # Saved model weights
-└── results/                   # Plots, metrics, generated molecules
+├── static/
+│   ├── index.html             # Web UI main page
+│   ├── style.css              # Stylesheet
+│   └── script.js              # Frontend logic & API interaction
+├── checkpoints/
+│   ├── vae_best.pt            # Trained VAE weights
+│   └── gnn_best.pt            # Trained GNN weights
+└── results/
+    ├── evaluation_metrics.json
+    ├── evaluation_summary.png
+    ├── generated_molecules.csv
+    ├── generated_properties.csv
+    ├── generated_molecules.png
+    ├── gnn_metrics.json
+    ├── gnn_parity.png
+    ├── gnn_training.png
+    ├── vae_loss.png
+    └── vae_metrics.json
 ```
 
 ## 🚀 Quick Start
@@ -95,8 +124,25 @@ python src/evaluate.py --n_samples 1000
 ### 6. Launch Dashboard
 
 ```bash
-streamlit run app.py
+python server.py
 ```
+
+Then open [http://localhost:7860](http://localhost:7860) in your browser.
+
+### 7. Deploying to Hugging Face Spaces
+
+This project is configured to be deployed as a Docker Space on Hugging Face.
+
+1. Create a new Space on [Hugging Face](https://huggingface.co/spaces) and select **Docker** as the SDK.
+2. Choose a Blank template.
+3. Push this repository to your Hugging Face Space repository:
+
+```bash
+git remote add space https://huggingface.co/spaces/YOUR_USERNAME/YOUR_SPACE_NAME
+git push --force space main
+```
+
+4. The Space will automatically build the Docker image and launch the Flask server on port `7860`.
 
 ## ⚙️ Configuration
 

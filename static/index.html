@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧬 AI Drug Discovery</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="hero-icon">🧬</div>
+                <h2>AI Drug Discovery</h2>
+            </div>
+
+            <div class="status-section">
+                <h4><i class="fa-solid fa-satellite-dish"></i> System Status</h4>
+                <div id="status-dataset" class="status-indicator">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i> Checking Dataset...
+                </div>
+                <div id="status-vae" class="status-indicator">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i> Checking VAE...
+                </div>
+                <div id="status-gnn" class="status-indicator">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i> Checking GNN...
+                </div>
+            </div>
+
+            <div class="device-section">
+                <h4><i class="fa-solid fa-microchip"></i> Device</h4>
+                <div class="code-block" id="device-info">LOADING...</div>
+            </div>
+
+            <div class="sidebar-footer">
+                Built with PyTorch • rdkit • Flask • Vanilla JS
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="hero-section">
+                <h1 class="hero-title">Generative AI for Drug Discovery</h1>
+                <p class="hero-sub">Design novel drug candidates with deep generative models and predict their molecular
+                    properties using Graph Neural Networks</p>
+            </header>
+
+            <!-- Tabs Navigation -->
+            <nav class="tabs-nav">
+                <button class="tab-btn active" data-target="tab-overview"><i class="fa-solid fa-house"></i>
+                    Overview</button>
+                <button class="tab-btn" data-target="tab-generate"><i class="fa-solid fa-dna"></i> Generate</button>
+                <button class="tab-btn" data-target="tab-evaluate"><i class="fa-solid fa-chart-bar"></i>
+                    Evaluate</button>
+                <button class="tab-btn" data-target="tab-explore"><i class="fa-solid fa-microscope"></i>
+                    Explore</button>
+            </nav>
+
+            <div class="tabs-content">
+                <!-- TAB 1: Overview -->
+                <section id="tab-overview" class="tab-pane active">
+                    <div class="grid-2col">
+                        <div class="glass-card">
+                            <h3><i class="fa-solid fa-bullseye"></i> Project Pipeline</h3>
+                            <p>This system uses a <b>two-stage AI pipeline</b> for drug molecule design:</p>
+                            <ol class="styled-list">
+                                <li><b>SMILES VAE</b> — A Variational Autoencoder trained on character-level SMILES
+                                    strings learns the chemical latent space. Sampling from this space generates novel,
+                                    chemically diverse molecules.</li>
+                                <li><b>GNN Property Predictor</b> — A Graph Convolutional Network takes molecular graphs
+                                    (atoms = nodes, bonds = edges) and predicts key drug properties: <em>molecular
+                                        weight, LogP, TPSA, and QED</em>.</li>
+                            </ol>
+                        </div>
+
+                        <div class="glass-card">
+                            <h3><i class="fa-solid fa-chart-pie"></i> Dataset Stats</h3>
+                            <div class="metrics-grid" id="overview-metrics">
+                                <div class="metric-card">
+                                    <div class="metric-label">Total Molecules</div>
+                                    <div class="metric-value">Loading...</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-label">Avg Mol Weight</div>
+                                    <div class="metric-value">Loading...</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-label">Avg QED</div>
+                                    <div class="metric-value">Loading...</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-label">Avg LogP</div>
+                                    <div class="metric-value">Loading...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 2: Generate -->
+                <section id="tab-generate" class="tab-pane">
+                    <div class="glass-card">
+                        <h3><i class="fa-solid fa-dna"></i> Generate Novel Drug Molecules</h3>
+                        <p>Sample from the trained VAE's latent space to create entirely new molecular structures.
+                            Adjust temperature to control diversity.</p>
+
+                        <div class="controls-grid">
+                            <div class="control-group">
+                                <label for="num-molecules">Number of molecules: <span
+                                        id="num-molecules-val">12</span></label>
+                                <input type="range" id="num-molecules" min="1" max="50" value="12">
+                            </div>
+                            <div class="control-group">
+                                <label for="temperature">Temperature: <span id="temperature-val">1.0</span></label>
+                                <input type="range" id="temperature" min="0.3" max="2.0" step="0.1" value="1.0">
+                            </div>
+                            <div class="control-group">
+                                <label for="sampling-mode">Sampling mode</label>
+                                <select id="sampling-mode">
+                                    <option value="greedy">Greedy</option>
+                                    <option value="diverse" selected>Diverse (multinomial)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button id="btn-generate" class="primary-btn"><i class="fa-solid fa-wand-magic-sparkles"></i>
+                            Generate Molecules</button>
+                    </div>
+
+                    <div id="generation-results" class="results-container hidden">
+                        <div class="results-header">
+                            <h4>Generated Molecules</h4>
+                            <div class="validity-badge" id="validity-badge">Validity: 0%</div>
+                        </div>
+                        <div class="molecules-grid" id="molecules-grid">
+                            <!-- Molecules will be injected here -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 3: Evaluate -->
+                <section id="tab-evaluate" class="tab-pane">
+                    <div class="glass-card">
+                        <h3><i class="fa-solid fa-chart-column"></i> Generation Quality Metrics</h3>
+                        <p>Comprehensive evaluation of the generated molecules' quality, novelty, and drug-likeness
+                            compared to the training distribution.</p>
+
+                        <div id="eval-metrics-container">
+                            <div class="loading-state"><i class="fa-solid fa-spinner fa-spin"></i> Loading metrics...
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 4: Explore -->
+                <section id="tab-explore" class="tab-pane">
+                    <div class="glass-card">
+                        <h3><i class="fa-solid fa-filter"></i> Filter Generated Molecules</h3>
+                        <p id="explore-stats">Loading generated molecules...</p>
+
+                        <div class="controls-grid" style="margin-top: 1rem;">
+                            <div class="control-group">
+                                <label>Molecular Weight</label>
+                                <div style="display:flex;gap:0.5rem">
+                                    <input type="number" id="filter-mw-min" placeholder="Min" value="0">
+                                    <input type="number" id="filter-mw-max" placeholder="Max" value="1000">
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label>LogP</label>
+                                <div style="display:flex;gap:0.5rem">
+                                    <input type="number" id="filter-logp-min" placeholder="Min" value="-5">
+                                    <input type="number" id="filter-logp-max" placeholder="Max" value="10">
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label>QED Score</label>
+                                <div style="display:flex;gap:0.5rem">
+                                    <input type="number" id="filter-qed-min" placeholder="Min" value="0" step="0.1">
+                                    <input type="number" id="filter-qed-max" placeholder="Max" value="1" step="0.1">
+                                </div>
+                            </div>
+                        </div>
+
+                        <button id="btn-apply-filters" class="primary-btn" style="margin-bottom: 2rem;"><i
+                                class="fa-solid fa-filter"></i> Apply Filters</button>
+
+                        <div class="table-container">
+                            <table class="data-table" id="explore-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50px;">Select</th>
+                                        <th>SMILES</th>
+                                        <th>MolWt</th>
+                                        <th>LogP</th>
+                                        <th>QED</th>
+                                        <th>TPSA</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="explore-table-body">
+                                    <tr>
+                                        <td colspan="6" style="text-align:center">Loading data...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <hr style="border:none; border-top:1px solid rgba(0,188,212,0.2); margin: 2rem 0;">
+
+                        <h3><i class="fa-solid fa-code-compare"></i> Compare Selected Molecules</h3>
+                        <p style="margin-bottom: 1rem; color: #94a3b8;">Select up to 4 molecules from the table above to
+                            compare their structures and properties.</p>
+                        <button id="btn-compare" class="primary-btn" style="margin-bottom: 2rem;"><i
+                                class="fa-solid fa-vial"></i> Compare</button>
+
+                        <div id="compare-grid" class="molecules-grid hidden">
+                            <!-- Comparison cards injected here -->
+                        </div>
+                    </div>
+
+                    <div class="glass-card">
+                        <div class="custom-analyzer">
+                            <div class="input-group">
+                                <input type="text" id="custom-smiles"
+                                    placeholder="Enter a SMILES string (e.g., CC(=O)OC1=CC=CC=C1C(O)=O)"
+                                    value="CC(=O)OC1=CC=CC=C1C(O)=O">
+                                <button id="btn-analyze" class="primary-btn"><i
+                                        class="fa-solid fa-magnifying-glass"></i> Analyze</button>
+                            </div>
+
+                            <div id="analyzer-results" class="analyzer-results hidden">
+                                <!-- Results injected here -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
